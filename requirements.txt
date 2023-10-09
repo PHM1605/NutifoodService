@@ -1,0 +1,4 @@
+azure-servicebus
+pydantic
+pydantic-settings
+torch

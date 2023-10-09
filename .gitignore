@@ -1,0 +1,3 @@
+# /environments
+/minenv
+/yolo_extract/*.pt
