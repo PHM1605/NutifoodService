@@ -3,10 +3,9 @@ import os
 from starlette.config import Config
 
 class Settings(BaseSettings):
-    environment: str = os.getenv("BUILD_ENVIRONMENT", "prod")
     ASB_CONNECTION_STRING: str = ""
     AZURE_STORAGE_CONNECTION_STRING: str = ""
-    config = Config(f"./environment/environment.{environment}.env")
+    config = Config(f"./environment/.env")
     ASB_CONNECTION_STRING = config('ASB_CONNECTION_STRING', default="")
     AZURE_STORAGE_CONNECTION_STRING = config('AZURE_STORAGE_CONNECTION_STRING', default="")
     DATABASE_CONNECTION_STRING = config('DATABASE_CONNECTION_STRING', default="")

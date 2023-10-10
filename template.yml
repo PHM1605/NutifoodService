@@ -2,7 +2,8 @@
 # Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
-trigger: none
+trigger:
+- main
 
 resources:
 - repo: self
@@ -10,18 +11,16 @@ resources:
 variables:
 
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: '04d8104b-8b71-4bdb-a75a-b5c5ad40767d'
-  imageRepository: 'accenture-realtime-services'
-  containerRegistry: 'visaiprd.azurecr.io'
+  dockerRegistryServiceConnection: '684c3296-1ca2-479d-b7d3-59ce634eb633'
+  imageRepository: 'nutifoodservicegit'
+  containerRegistry: 'visprdacr.azurecr.io'
   dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
-  imagePullSecret: 'visdev1274e32c-auth'
-  environment: 'spvbrealtimeservices.default'
+  imagePullSecret: 'visprdacr93271737-auth'
+
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
-  # Name of the new namespace being created to deploy the PR changes.
-  k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
 
 stages:
 - stage: Build
@@ -45,37 +44,35 @@ stages:
     - upload: manifests
       artifact: manifests
 
-
 - stage: Deploy
-  displayName: Deploy to Dev
+  displayName: Deploy stage
   dependsOn: Build
 
   jobs:
   - deployment: Deploy
-    displayName: Deploy to AKS
-    pool: 
+    displayName: Deploy
+    pool:
       vmImage: $(vmImageName)
-    environment: $(environment)
+    environment: 'NutifoodServicegit.default'
     strategy:
       runOnce:
         deploy:
           steps:
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              buildType: current
-              artifactName: manifests
-              targetPath: $(Pipeline.Workspace)/manifests
           - task: KubernetesManifest@0
+            displayName: Create imagePullSecret
             inputs:
               action: createSecret
               secretName: $(imagePullSecret)
               dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
+
           - task: KubernetesManifest@0
+            displayName: Deploy to Kubernetes cluster
             inputs:
-              action: 'deploy'
+              action: deploy
               manifests: |
                 $(Pipeline.Workspace)/manifests/deployment.yml
                 $(Pipeline.Workspace)/manifests/service.yml
-                $(Pipeline.Workspace)/manifests/hpa.yml
-              containers:  $(containerRegistry)/$(imageRepository):$(tag)
-              imagePullSecrets: $(imagePullSecret)
+              imagePullSecrets: |
+                $(imagePullSecret)
+              containers: |
+                $(containerRegistry)/$(imageRepository):$(tag)

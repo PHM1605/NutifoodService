@@ -11,7 +11,7 @@ variables:
 
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '28512844-d84e-4bca-a03d-2d21d81b756b'
-  imageRepository: 'accenture-realtime-services'
+  imageRepository: 'NutifoodService.git'
   containerRegistry: 'visdev.azurecr.io'
   dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
@@ -47,7 +47,7 @@ stages:
 
 
 - stage: Deploy
-  displayName: Deploy to Dev
+  displayName: Deploy to main
   dependsOn: Build
 
   jobs:
