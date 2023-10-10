@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accenture-realtime-services
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accenture-realtime-services
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5 
+  template:
+    metadata:
+      labels:
+        app: accenture-realtime-services
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+      - name: accenture-realtime-services
+        image: visdev.azurecr.io/accenture-realtime-services:latest
+        env:
+        - name: BUILD_ENVIRONMENT
+          value: "prod"
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 500m
+            memory: 500Mi
+          limits:
+            cpu: 1500m
+            memory: 1000Mi
